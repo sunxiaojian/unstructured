@@ -23,6 +23,7 @@ from test_unstructured.unit_utils import (
     example_doc_path,
     function_mock,
 )
+from unstructured.chunking.langchain import chunk_by_langchain
 from unstructured.chunking.title import chunk_by_title
 from unstructured.cleaners.core import clean_extra_whitespace
 from unstructured.documents.elements import Table
@@ -174,6 +175,19 @@ def test_add_chunking_strategy_to_partition_csv_non_default():
         include_header=False,
     )
     chunks = chunk_by_title(elements, max_characters=9, combine_text_under_n_chars=0)
+    assert chunk_elements != elements
+    assert chunk_elements == chunks
+
+def test_add_langchain_chunking_strategy_to_partition_csv_non_default():
+    filename = "/Users/sunxiaojian/work/open-source/unstructured/example-docs/stanley-cups.csv"
+    elements = partition_csv(filename=filename)
+    chunk_elements = partition_csv(
+        filename,
+        chunking_strategy="recursive",
+        max_characters=10,
+        overlap=2
+    )
+    chunks = chunk_by_langchain(elements,  max_characters=10, overlap=2)
     assert chunk_elements != elements
     assert chunk_elements == chunks
 

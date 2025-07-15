@@ -14,6 +14,7 @@ from typing import Any, Callable, Iterable, Optional, Protocol
 from typing_extensions import ParamSpec
 
 from unstructured.chunking.basic import chunk_elements
+from unstructured.chunking.langchain import chunk_by_langchain, get_available_strategies
 from unstructured.chunking.title import chunk_by_title
 from unstructured.documents.elements import Element
 from unstructured.utils import get_call_args_applying_defaults, lazyproperty
@@ -89,16 +90,26 @@ def add_chunking_strategy(func: Callable[_P, list[Element]]) -> Callable[_P, lis
 
 def chunk(elements: Iterable[Element], chunking_strategy: str, **kwargs: Any) -> list[Element]:
     """Dispatch chunking of `elements` to the chunking function for `chunking_strategy`."""
-    chunker_spec = _chunker_registry.get(chunking_strategy)
+
+    is_langchain_chunking_strategy = False;
+    if chunking_strategy in get_available_strategies():
+        is_langchain_chunking_strategy = True;
+
+    if is_langchain_chunking_strategy:
+        chunker_spec = _chunker_registry.get("by_langchain")
+    else:
+        chunker_spec = _chunker_registry.get(chunking_strategy)
 
     if chunker_spec is None:
         raise ValueError(f"unrecognized chunking strategy {repr(chunking_strategy)}")
 
-    # -- `kwargs` will in general be an omnibus dict of all keyword arguments to the partitioner;
-    # -- pick out and use only those supported by this chunker.
-    chunking_kwargs = {k: v for k, v in kwargs.items() if k in chunker_spec.kw_arg_names}
-
-    return chunker_spec.chunker(elements, **chunking_kwargs)
+    if is_langchain_chunking_strategy:
+        return chunker_spec.chunker(elements, chunk_strategy=chunking_strategy, **kwargs)
+    else:
+        # -- `kwargs` will in general be an omnibus dict of all keyword arguments to the partitioner;
+        # -- pick out and use only those supported by this chunker.
+        chunking_kwargs = {k: v for k, v in kwargs.items() if k in chunker_spec.kw_arg_names}
+        return chunker_spec.chunker(elements, **chunking_kwargs)
 
 
 def register_chunking_strategy(name: str, chunker: Chunker) -> None:
@@ -126,4 +137,5 @@ class _ChunkerSpec:
 _chunker_registry: dict[str, _ChunkerSpec] = {
     "basic": _ChunkerSpec(chunk_elements),
     "by_title": _ChunkerSpec(chunk_by_title),
+    "by_langchain": _ChunkerSpec(chunk_by_langchain),
 }

@@ -55,6 +55,7 @@ rtf_reqs = load_requirements("requirements/extra-pandoc.in")
 rst_reqs = load_requirements("requirements/extra-pandoc.in")
 tsv_reqs = load_requirements("requirements/extra-csv.in")
 xlsx_reqs = load_requirements("requirements/extra-xlsx.in")
+langchain_reqs = load_requirements("requirements/langchain.in")
 
 all_doc_reqs = list(
     set(
@@ -70,7 +71,8 @@ all_doc_reqs = list(
         + rtf_reqs
         + rst_reqs
         + tsv_reqs
-        + xlsx_reqs,
+        + xlsx_reqs
+        + langchain_reqs
     ),
 )
 
@@ -121,6 +123,7 @@ setup(
         "rst": rst_reqs,
         "tsv": tsv_reqs,
         "xlsx": xlsx_reqs,
+        "langchain": langchain_reqs,
         # Legacy extra requirements
         "huggingface": load_requirements("requirements/huggingface.in"),
         "local-inference": all_doc_reqs,

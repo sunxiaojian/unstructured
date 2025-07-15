@@ -1,0 +1,15 @@
+-c ./deps/constraints.txt
+-c base.txt
+
+## LangChain
+langchain==0.3.25
+langchain-core==0.3.68
+langchain-community==0.3.23
+langchain-text-splitters==0.3.8
+langchain-experimental==0.3.4
+
+## Sentence Transformers
+sentence-transformers==5.0.0
+
+## Spacy
+spacy==3.8.7

@@ -65,6 +65,14 @@ def test_auto_partition_csv_from_filename():
     assert elements[0].metadata.filetype == "text/csv"
 
 
+def test_auto_partition_csv_from_filename_with_langchain_chunking():
+    elements = partition(example_doc_path("stanley-cups.csv"), chunking_strategy="by_langchain")
+
+    assert clean_extra_whitespace(elements[0].text) == EXPECTED_TEXT
+    assert elements[0].metadata.text_as_html == EXPECTED_TABLE
+    assert elements[0].metadata.filetype == "text/csv"
+
+
 def test_auto_partition_csv_from_file():
     with open(example_doc_path("stanley-cups.csv"), "rb") as f:
         elements = partition(file=f)
